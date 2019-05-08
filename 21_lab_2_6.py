@@ -4,9 +4,10 @@ def objectify(passed_class):
     object_of_class = passed_class()
     return object_of_class
 
+
 @objectify
 class Range:
-    def __init__(self):
+    def __init__(self, *args):
         return
 
     def __call__(self, start_number, before_number=None, step=1):
@@ -28,4 +29,3 @@ if __name__ == "__main__":
     print(Range(2, 6))
     print(Range(2))
     print(1 in Range(2))
-
