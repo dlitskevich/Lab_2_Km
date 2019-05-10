@@ -29,3 +29,8 @@ if __name__ == "__main__":
     print(Range(2, 6))
     print(Range(2))
     print(1 in Range(2))
+
+    print(next(iter(Range(2))))
+    print()
+    for item in Range(6, 65, 7):
+        print(item)
