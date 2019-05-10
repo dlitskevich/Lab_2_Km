@@ -1,7 +1,6 @@
 
 
 class Sequence:
-
     def __init__(self, iterable):
         try:
             self.__iterable = iter(iterable)
@@ -19,9 +18,16 @@ class Sequence:
             self.__iterable = iter(self.__iterable_saved)
             return next(self.__iterable)
 
+    def filter(self, function):
+        self.__iterable_saved = list(filter(function, self.__iterable_saved))
+        self.__iterable = iter(self.__iterable_saved)
+        return next(self)
+
 
 if __name__ == "__main__":
-    test_sequence = Sequence(range(4))
+    test_sequence = Sequence(range(5, 40))
+    test_an_sequence = Sequence(range(5, 9))
+    print(test_sequence.filter(lambda a: 7 < a < 26))
 
     stop = 0
     for test_item in test_sequence:
