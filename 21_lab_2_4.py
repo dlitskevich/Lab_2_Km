@@ -51,6 +51,7 @@ if __name__ == "__main__":
     #print(test_dict.__dict__)
 
     test_dict["a"]["b"]["c"] = 1
+    test_dict["a"]["z"]["c"] = 1
     print(test_dict["a"]["b"])
     print(test_dict.__dict__)
 
