@@ -11,7 +11,18 @@ class Dict:
 class RecursiveDict:
     dictionary = Dict()
 
-    def __init__(self):
+    """
+    def default_value(self):
+        default_values = {
+            int: 0,
+            list: [],
+            dict: {}
+        }
+        return default_values[self.type]
+    """
+
+    def __init__(self, default_type=int):
+        # self.type = default_type
         return
 
     def __setitem__(self, key, value):
@@ -24,6 +35,7 @@ class RecursiveDict:
             return self.dictionary[item]
         except KeyError:
             self.dictionary[item] = RecursiveDict()
+            print(self.dictionary)
             return self.dictionary[item]
 
     def __repr__(self):
@@ -35,8 +47,8 @@ if __name__ == "__main__":
     test_dict["ab"] = "first"
     print(test_dict.__dict__)
 
-    test_dict["ac"]["bc"] = "second"
-    print(test_dict.__dict__)
+    #test_dict["ac"]["bc"] = "second"
+    #print(test_dict.__dict__)
 
     test_dict["a"]["b"]["c"] = 1
     print(test_dict["a"]["b"])
