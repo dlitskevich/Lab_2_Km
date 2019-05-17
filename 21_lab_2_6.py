@@ -15,17 +15,22 @@ class RangeIterator:
         if self.start < self.stop:
             if self.step < 0 \
                     or self.current > self.stop >= 0 \
-                    or self.current < self.stop <= 0:
+                    or self.current > self.stop <= 0:
                 raise StopIteration
         else:
             if self.step > 0 \
                     or self.current < self.stop >= 0 \
-                    or self.current > self.stop <= 0:
+                    or self.current < self.stop <= 0:
                 raise StopIteration
         return self.current - self.step
 
+    def __length_hint__(self):
+        pass
+
 
 class Range:
+    __slots__ = "start", "stop", "step"
+
     def __init__(self, start, *args):
         quantity = len(args)
         if quantity > 2:
@@ -55,17 +60,72 @@ class Range:
             return "Range({}, {}, {})" \
                    "".format(self.start, self.stop, self.step)
 
+    def __bool__(self):
+        return True
+
+    def __getitem__(self, order):
+        quantity = abs((self.start-self.stop)/ self.step)
+        if order < 0:
+            order = quantity + order
+        current_index = 0
+        for item in RangeIterator(self.start, self.stop, self.step):
+            if current_index == order:
+                return item
+            current_index += 1
+        raise IndexError("Range object index out of range")
+
+    def __reversed__(self):
+        return RangeIterator(self.stop-self.step,
+                             self.start-self.step,
+                             -self.step)
+
+    def __len__(self):
+        pass
+
+    def index(self, value):
+        pass
+
+    def count(self, value):
+        pass
+
+    def __contains__(self, item):
+        pass
+
 
 if __name__ == "__main__":
-    print(range(200, -1))
+    print(dir(range))
+    print(dir(Range))
+    print(dir(iter(range(1))))
+    print(dir(iter(Range(1))))
     print(iter(range(1)))
+    print(iter(Range(1)))
     print(repr(range))
     print(repr(Range))
     print(range(1, ))
     print(Range(1, ))
-    print(dir(iter(range(1))))
+    print(iter(range(1, )))
+    print(iter(Range(1, )))
+    if range(1, 2):
+        print(range(1,))
+    if Range(1):
+        print(Range(1,))
+    print("{}".format(range.step))
+    print("{}".format(Range.step))
+
+    print(range(20)[12])
+    print(Range(20)[12])
+
+    print([x for x in reversed(range(-10, -20, -10))])
+    print([x for x in reversed(Range(-10, -20, -10))])
+
+    print(range(20, 400, 20).count(62))
+    print(range(20, 400, 20).index(60))
+    print(iter(range(10)).__length_hint__())
+
     print([x for x in range(49, 90)])
     print([x for x in Range(49, 90)])
+    print([x for x in range(-9, -50, -1)])
+    print([x for x in Range(-9, -50, -1)])
 
 
 
