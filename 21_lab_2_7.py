@@ -24,20 +24,20 @@ class Sequence:
         for item in self.__iterable_saved:
             if function(item):
                 filtered.append(item)
-        self.__iterable_saved = filtered
-        self.__iterable = iter(self.__iterable_saved)
-        return self
+
+        return Sequence(filtered)
 
 
 if __name__ == "__main__":
     test_sequence = Sequence(range(5, 40))
     test_an_sequence = Sequence(range(5, 9))
-    print(test_sequence.filter(lambda a: 9 < a < 12))
+    test_filtered = test_sequence.filter(lambda a: 9 < a < 12)
     
     stop = 0
-    for test_item in test_sequence:
+    for test_item, filtered_item in zip(test_sequence, test_filtered):
         if stop > 100:
             break
+        print(filtered_item)
         print(test_item)
         stop += 1
 
