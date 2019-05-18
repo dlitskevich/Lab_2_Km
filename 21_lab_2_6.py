@@ -1,5 +1,3 @@
-
-
 class RangeIterator:
     def __init__(self, start, stop, step):
         self.stop = stop
@@ -25,7 +23,10 @@ class RangeIterator:
         return self.current - self.step
 
     def __length_hint__(self):
-        pass
+        if self.start > self.stop and self.step > 0 \
+                or self.start < self.stop and self.step < 0:
+            return 0
+        return abs((self.start - self.stop) // self.step)
 
 
 class Range:
@@ -35,7 +36,7 @@ class Range:
         quantity = len(args)
         if quantity > 2:
             raise TypeError("Range expected at most 3 arguments, got {}"
-                            .format(quantity+1))
+                            .format(quantity + 1))
         if quantity == 0:
             self.stop = start
             self.start = 0
@@ -64,7 +65,7 @@ class Range:
         return True
 
     def __getitem__(self, order):
-        quantity = abs((self.start-self.stop)/ self.step)
+        quantity = abs((self.start - self.stop) // self.step)
         if order < 0:
             order = quantity + order
         current_index = 0
@@ -75,21 +76,31 @@ class Range:
         raise IndexError("Range object index out of range")
 
     def __reversed__(self):
-        return RangeIterator(self.stop-self.step,
-                             self.start-self.step,
+        return RangeIterator(self.stop - self.step,
+                             self.start - self.step,
                              -self.step)
 
+    def __contains__(self, item):
+        return item in iter(self)
+
     def __len__(self):
-        pass
+        return RangeIterator(self.start, self.stop, self.step)\
+            .__length_hint__()
 
     def index(self, value):
-        pass
+        if value not in iter(self):
+            raise ValueError("{} is not in range".format(value))
+        else:
+            current_index = 0
+            for item in RangeIterator(self.start, self.stop, self.step):
+                if item == value:
+                    return current_index
+                current_index += 1
 
     def count(self, value):
-        pass
-
-    def __contains__(self, item):
-        pass
+        if value in iter(self):
+            return 1
+        return 0
 
 
 if __name__ == "__main__":
@@ -106,9 +117,9 @@ if __name__ == "__main__":
     print(iter(range(1, )))
     print(iter(Range(1, )))
     if range(1, 2):
-        print(range(1,))
+        print(range(1, ))
     if Range(1):
-        print(Range(1,))
+        print(Range(1, ))
     print("{}".format(range.step))
     print("{}".format(Range.step))
 
@@ -118,14 +129,22 @@ if __name__ == "__main__":
     print([x for x in reversed(range(-10, -20, -10))])
     print([x for x in reversed(Range(-10, -20, -10))])
 
+    print(2 in range(4))
+    print(-1 in Range(4))
+
     print(range(20, 400, 20).count(62))
     print(range(20, 400, 20).index(60))
-    print(iter(range(10)).__length_hint__())
+
+    print(len(range(-10, 1)))
+    print(len(Range(-10, 1)))
+
+    print(range(100, 200, 10).count(100))
+    print(Range(100, 200, 10).count(100))
+
+    print(range(200, 100, -10).index(190))
+    print(Range(200, 100, -10).index(190))
 
     print([x for x in range(49, 90)])
     print([x for x in Range(49, 90)])
     print([x for x in range(-9, -50, -1)])
     print([x for x in Range(-9, -50, -1)])
-
-
-
