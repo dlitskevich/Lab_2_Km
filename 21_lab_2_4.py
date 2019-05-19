@@ -45,7 +45,7 @@ class RecursiveDict:
 if __name__ == "__main__":
     test_dict = RecursiveDict()
     test_dict["ab"] = "first"
-    print(test_dict.__dict__)
+    print(test_dict)
 
     # test_dict["ac"]["bc"] = "second"
     # print(test_dict.__dict__)
@@ -53,11 +53,11 @@ if __name__ == "__main__":
     test_dict["a"]["b"]["c"] = 1
     test_dict["a"]["z"]["c"] = 1
     print(test_dict["a"]["b"])
-    print(test_dict.__dict__)
+    print(test_dict)
 
     print(test_dict["aff"]["b"])
-    print(test_dict.__dict__)
+    print(test_dict)
 
     test_an_dict = RecursiveDict()
-    print(test_dict.__dict__)
-    print(test_an_dict.__dict__)
+    print(test_dict)
+    print(test_an_dict)
