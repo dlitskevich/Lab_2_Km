@@ -64,9 +64,11 @@ if __name__ == "__main__":
     print(next(b))
     print(iter(test_sequence))
 
+    """ Test purpose
     a = iter(range(5))
     print(next(a))
     print(next(a))
     b = iter(a)
     print(next(a))
     print(next(b))
+    """
