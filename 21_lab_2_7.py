@@ -9,7 +9,7 @@ class SequenceIterator:
             raise
 
     def __iter__(self):
-        self.__iterator = iter(self.__iterable)
+        # self.__iterator = iter(self.__iterable)
         return self
 
     def __next__(self):
@@ -57,8 +57,16 @@ if __name__ == "__main__":
             stop1 += 1
         stop += 1
     a = iter(test_sequence)
-    b = iter(test_sequence)
-    print(a)
-    print(b)
+    print(next(a))
+    print(next(a))
+    b = iter(a)
+    print(next(a))
+    print(next(b))
     print(iter(test_sequence))
 
+    a = iter(range(5))
+    print(next(a))
+    print(next(a))
+    b = iter(a)
+    print(next(a))
+    print(next(b))
