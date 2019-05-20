@@ -1,7 +1,5 @@
-import traceback
 import inspect
 import sys
-import os
 
 
 def exception_info(func):
@@ -12,65 +10,44 @@ def exception_info(func):
 
         except Exception:
             tb = sys.exc_info()[2]
-            all_exceptions = traceback.extract_tb(tb)
-            last_exception = all_exceptions[-1]
-            print(tb.tb_frame.f_locals)
-            print(last_exception)
-            print(tb.tb_next.tb_next.tb_frame.f_locals)
+            # iterate to the last frame
+            while tb.tb_next:
+                tb = tb.tb_next
+            last_frame = tb.tb_frame
 
-            print()
-            module = inspect.getmodule(tb.tb_frame.f_locals["func"])
-            source = inspect.getsourcelines(module)
-            row_before_exception = source[0][last_exception.lineno-2].strip()
-            # print(inspect.getsourcelines(module_name))
-            """
-            
+            # getting row of code before exception occured
+            source_func = inspect.getsourcelines(last_frame)
+            lines, first_line = source_func
+            exception_lineno = last_frame.f_lineno
+            func_lineno = exception_lineno - first_line
+            row_before_exception = lines[func_lineno-1].strip()
 
-            f_locals = tb.tb_frame.f_locals
-            name = tb.tb_frame.f_code.co_name
+            # getting values and names of arguments ripped func called with
+            *arg_names,  arg_locals = inspect.getargvalues(last_frame)
+            arg_names = arg_names[0] + [arg for arg in arg_names[1:]
+                                        if arg is not None]
+            args_dict = {}
+            for arg in arg_names:
+                args_dict[arg] = arg_locals[arg]
 
-            all_exceptions = traceback.format_list(traceback.extract_tb(tb))
-            last_exception = traceback.extract_tb(tb)[-1]
-            print(all_exceptions)
-            print(last_exception)
-            print(last_exception)
-            
-            print(last_exception.f_code.co_consts)
-            print(last_exception.f_code.co_varnames)
-            print(last_exception.line)
-            print(name)
-            
-            print()
-
-            print(f_locals)
-            print(f_locals.items())
-            print(tb.tb_frame.f_code.co_consts)
-            print(tb.tb_frame.f_code.co_varnames)
-            # print(inspect.signature(name))
-            print(traceback.extract_tb(tb))
-            
-            print(inspect.getsourcelines(last_exception.name))
-            print(inspect.getsourcelines(test))
-            
-            
-            """
-
-            return row_before_exception, 1
+            return row_before_exception, args_dict
     return test_func
 
 
-def test(arg, *args, key=1):
+def test(arg, *args, key=1, key2=12, **kwargs):
+    test_const = 1
     isinstance(arg, int)
     return arg/1000
 
+
 @exception_info
-def an_test(a, *args, key=1):
-    a += [23]
-    return test(a)
+def an_test(arg, *args, **kwargs):
+    return test(arg, *args, **kwargs)
 
 
 if __name__ == "__main__":
     b = [4]
+    print(an_test(1, key=10))
     print(an_test(b, key=10))
-
-
+    print(an_test(b, 3, 4, 5, key14=23, key=10))
+    print(an_test(b))
