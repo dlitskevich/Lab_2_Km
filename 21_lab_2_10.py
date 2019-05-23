@@ -19,7 +19,8 @@ class FieldInitializer(type):
                 if isinstance(value, value_type):
                     user_setattr(self, key, value)
                 else:
-                    raise TypeError("Must be same type: {}".format(value_type))
+                    raise TypeError("Must be same type: {}"
+                                    .format(value_type))
             except AttributeError:
                 user_setattr(self, key, value)
 
@@ -28,11 +29,22 @@ class FieldInitializer(type):
 
     # The __call__ method will be called when you make instances of Class
     def __call__(cls, *args, **kwargs):
-        print(kwargs)
+        # get expected kwargs (args, kwargs)
+        quantity_arg = cls.__init__.__code__.co_argcount
+        arguments = cls.__init__.__code__.co_varnames[quantity_arg:]
+
+        # separate expected and unexpected kwargs
+        unexpected_kwargs = {}
+        for kwarg in list(kwargs):
+            if kwarg not in arguments:
+                unexpected_kwargs[kwarg] = kwargs.pop(kwarg)
+
+        # create object
         created_object = super().__call__(*args, **kwargs)
         object_fields = list(created_object.__dict__.keys())
 
-        for kwarg, value in kwargs.items():
+        # set attributes with unexpected kwargs
+        for kwarg, value in unexpected_kwargs.items():
             if kwarg not in object_fields:
                 setattr(created_object, kwarg, value)
 
@@ -42,7 +54,7 @@ class FieldInitializer(type):
 class Foo(metaclass=FieldInitializer):
     bar = 'bip'
 
-    def __init__(self, a, *args, test_value=2, an_test_value=32, **kwargs):
+    def __init__(self, a, b=1, *args, test_value=2, an_test_value=32):
         self.car = a
 
     def lol(self):
@@ -54,16 +66,18 @@ class FooChild(Foo, metaclass=FieldInitializer):
 
 
 if __name__ == "__main__":
-    test = FooChild(1, test_value=2, an_test_value=32, new_key=3)
-    an_test = FooChild(10, test_value=20, an_test_value=32)
+    test = FooChild(1, 2, 3, 4, test_value=2, an_test_value=32, new_key=3)
+    an_test = FooChild(10, test_value=20, an_test_value=32, new_key=3)
 
+    print()
+    print("         Tests")
     print(Foo)
     print(test.__dict__)
     print(an_test.__dict__)
     print()
     an_test.car = 100
     try:
-        an_test.test_value = "d"
+        an_test.new_key = "d"
     except TypeError as e:
         print(e)
     print(an_test.car)
