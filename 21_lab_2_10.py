@@ -28,6 +28,7 @@ class FieldInitializer(type):
 
     # The __call__ method will be called when you make instances of Class
     def __call__(cls, *args, **kwargs):
+        print(kwargs)
         created_object = super().__call__(*args, **kwargs)
         object_fields = list(created_object.__dict__.keys())
 
@@ -41,16 +42,20 @@ class FieldInitializer(type):
 class Foo(metaclass=FieldInitializer):
     bar = 'bip'
 
-    def __init__(self, a, *args, test_value=2, an_test_value=32):
+    def __init__(self, a, *args, test_value=2, an_test_value=32, **kwargs):
         self.car = a
 
     def lol(self):
         pass
 
 
+class FooChild(Foo, metaclass=FieldInitializer):
+    pass
+
+
 if __name__ == "__main__":
-    test = Foo(1, test_value=2, an_test_value=32)
-    an_test = Foo(10, test_value=20, an_test_value=32)
+    test = FooChild(1, test_value=2, an_test_value=32, new_key=3)
+    an_test = FooChild(10, test_value=20, an_test_value=32)
 
     print(Foo)
     print(test.__dict__)
