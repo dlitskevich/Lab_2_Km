@@ -53,10 +53,10 @@ class Super:
             func(self.__self__, *args, **kwargs)
 
         return bound_func
-    """
+    
     def decorator(self, func):
         return lambda *args, **kwargs: func(self.__self__, *args, **kwargs)
-
+    """
     def __getattribute__(self, item):
         if item in object.__getattribute__(self, '__slots__') \
                 or item == "decorator":
@@ -65,7 +65,8 @@ class Super:
 
         for subclass in mro:
             try:
-                return self.decorator(object.__getattribute__(subclass, item))
+                # return self.decorator(object.__getattribute__(subclass, item))
+                return object.__getattribute__(subclass, item).__get__(self.__self__, self.__this_class__)
 
             except AttributeError:
                 continue
@@ -78,6 +79,7 @@ if __name__ == "__main__":
     print(super(D, test_D))
     print()
 
+    print(Super(C, test_D).method)
     Super(C, test_D).method(1, kwarg=1)
     super(C, test_D).method(1, kwarg=1)
     print()
