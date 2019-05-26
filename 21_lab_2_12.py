@@ -65,8 +65,13 @@ class Super:
 
         for subclass in mro:
             try:
+                attr = object.__getattribute__(subclass, item)
+                # better through types MethodType
+                if callable(attr):
+                    # noinspection PyUnresolvedReferences
+                    return attr.__get__(self.__self__, self.__this_class__)
+                return attr
                 # return self.decorator(object.__getattribute__(subclass, item))
-                return object.__getattribute__(subclass, item).__get__(self.__self__, self.__this_class__)
 
             except AttributeError:
                 continue
@@ -79,6 +84,8 @@ if __name__ == "__main__":
     print(super(D, test_D))
     print()
 
+    print(super(C, test_D).d)
+    print(Super(C, test_D).d)
     print(Super(C, test_D).method)
     Super(C, test_D).method(1, kwarg=1)
     super(C, test_D).method(1, kwarg=1)
