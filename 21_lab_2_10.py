@@ -8,7 +8,7 @@ class FieldInitializer(type):
     def __init__(cls, name, bases, dct):
         for base in cls.mro():
             try:
-                user_setattr = dct.__setattr
+                user_setattr = cls.__setattr__
             except AttributeError:
                 user_setattr = base.__setattr__
                 break
