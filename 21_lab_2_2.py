@@ -10,7 +10,7 @@
 """
 
 
-class Class():
+class Class:
     attr_public = "attr_public"
     __attr_private = "attr_private"
     _attr_protected = "attr_protected"
@@ -35,4 +35,3 @@ class SubClass(Class):
 
 if __name__ == "__main__":
     SubClass().protected_test()
-
