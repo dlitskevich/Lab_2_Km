@@ -1,3 +1,4 @@
+import sys
 
 
 def getancestor(self, item):
@@ -9,52 +10,56 @@ def getancestor(self, item):
     raise AttributeError
 
 
-def instance_getattribute(self, item):
+def get_start_frame(frame):
     """"""
-    print()
-    print("classGet", item, self)
-    # ignore some magic
-    if item.startswith("__"):
+    current_frame = frame
+    not_last = True
+    while not_last:
+        next_frame = current_frame.f_back
+        if next_frame is None or next_frame.f_code.co_name == "<module>":
+            return current_frame
+        current_frame = next_frame
+
+    return current_frame
+
+
+def PPProtected(cls):
+    def getattribute(self, item):
+        print(self, cls, item)
+        print(sys._getframe(0))
+        print(get_start_frame(sys._getframe(1)))
+
+        #print(sys._getframe(1).f_locals[sys._getframe(1).f_code.co_name])
+
+        if item.endswith("__"):
+            return object.__getattribute__(self, item)
+
+        # check 'privatness' of attribute
+        if item.startswith('__'):
+            raise AttributeError("Trying to access private not from class")
+
+        # check 'protectness' of attribute
+        if item.startswith('_') and not isinstance(self, cls) and\
+                not item[1:].startswith(self.__class__.__name__[4:]):
+            raise AttributeError("Trying to access protected "
+                                 "not from children")
+
         return object.__getattribute__(self, item)
-    ancestor = getancestor(self, item)
 
-    # when we try to get access to private attr from any instance
-    # if item in object.__getattribute__(ancestor, "__private__"):
-    #    raise AttributeError("Trying to access private attribute")
-
-    return object.__getattribute__(self, item)
-
-
-class PPProtected(type):
-    def __init__(cls, name, bases, dct):
-
-        cls.__private__ = [] if not hasattr(cls, "__private__") else cls.__private__
-        cls.__getattribute__ = instance_getattribute
-
-        super().__init__(name, bases, dct)
-
-    """
-    def __getattribute__(self, item):
-        print(self)
-        print(object.__getattribute__(self, "__private__"), item)
-        if item in object.__getattribute__(self, "__private__"):
-            raise AttributeError("Trying to access private attribute")
-
-        return object.__getattribute__(self, item)
-    """
-
-    def __getattribute__(self, item):
-        return object.__getattribute__(self, item)
+    wrapper = type("PPP_{}".format(cls.__name__), (cls,), dict())
+    wrapper.__getattribute__ = getattribute
+    return wrapper
 
 
 class SupClass(object):
     pass
 
 
-class Class(SupClass, metaclass=PPProtected):
+@PPProtected
+class Class(SupClass):
     attr_public = "attr_public"
     __attr_private = "attr_private"
-    attr_protected = "attr_protected"
+    _attr_protected = "attr_protected"
 
     def __init__(self):
         self.aa_test = 123
@@ -62,18 +67,20 @@ class Class(SupClass, metaclass=PPProtected):
     def method_public(self):
         print("method_public called")
         print(self.__attr_private)
-        # print(Class.__attr_private)
-
+        print(self._attr_protected)
+        self.__method_private()
 
     def __method_private(self):
         print("method_private called")
 
-    def method_protected(self):
+    def _method_protected(self):
         print("method_protected called")
 
 
+@PPProtected
 class SubClass(Class):
-    pass
+    def test_protected(self):
+        self._method_protected()
 
 
 if __name__ == "__main__":
@@ -81,34 +88,17 @@ if __name__ == "__main__":
 
     # attributes tests
     print()
-    Class.method_public(Class)
-    print()
     instance.method_public()
     print()
-    SubClass().method_public()
-    print()
     try:
-        print(Class.method_private(Class))
+        print(instance.__method_private)
     except AttributeError as err:
         print(err)
-    """
     try:
-        print(instance.attr_private)
+        instance._method_protected()
     except AttributeError as err:
         print(err)
 
-
     print()
-    print(SubClass.mro())
-    print(SubClass.attr_private)
-    """
-    """
+    SubClass().test_protected()
     print()
-    print(SubClass.attr_protected)
-    """
-    # methods tests
-    """
-    Test.method_public()
-    Test.method_private()
-    Test.method_protected()
-    """
