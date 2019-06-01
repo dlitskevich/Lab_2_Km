@@ -4,6 +4,8 @@ import sys
 def getancestor(self, item):
     """"""
     mro = self.__class__.__mro__
+    if item == "getattribute":
+        return None.__class__
     for ancestor in mro:
         if item in ancestor.__dict__:
             return ancestor
@@ -25,12 +27,7 @@ def get_start_frame(frame):
 
 def PPProtected(cls):
     def getattribute(self, item):
-        print(self, cls, item)
-        print(sys._getframe(0))
-        print(get_start_frame(sys._getframe(1)))
-
-        #print(sys._getframe(1).f_locals[sys._getframe(1).f_code.co_name])
-
+        # pass everything magic
         if item.endswith("__"):
             return object.__getattribute__(self, item)
 
@@ -39,10 +36,15 @@ def PPProtected(cls):
             raise AttributeError("Trying to access private not from class")
 
         # check 'protectness' of attribute
-        if item.startswith('_') and not isinstance(self, cls) and\
+        if item.startswith('_') and\
                 not item[1:].startswith(self.__class__.__name__[4:]):
-            raise AttributeError("Trying to access protected "
-                                 "not from children")
+            invoker_name = get_start_frame(sys._getframe(0)).f_code.co_name
+            invoker = getancestor(self, invoker_name)
+            owner = getancestor(self, item)
+            # print(invoker, owner, issubclass(invoker, owner))
+            if not issubclass(invoker, owner):
+                raise AttributeError("Trying to access protected "
+                                     "not from children")
 
         return object.__getattribute__(self, item)
 
@@ -52,7 +54,9 @@ def PPProtected(cls):
 
 
 class SupClass(object):
-    pass
+    def test_protected(self):
+        Class()._method_protected()
+        print(Class()._attr_protected)
 
 
 @PPProtected
@@ -77,28 +81,33 @@ class Class(SupClass):
         print("method_protected called")
 
 
-@PPProtected
 class SubClass(Class):
     def test_protected(self):
         self._method_protected()
+        print(self._attr_protected)
 
 
 if __name__ == "__main__":
     instance = Class()
 
     # attributes tests
-    print()
+    print("     1-st")
     instance.method_public()
-    print()
+    print("     2-nd")
     try:
         print(instance.__method_private)
     except AttributeError as err:
         print(err)
+    print("     3-rd")
+    try:
+        SupClass().test_protected()
+    except AttributeError as err:
+        print(err)
+
+    print("     4-th")
+    SubClass().test_protected()
+    print("     5-th")
     try:
         instance._method_protected()
     except AttributeError as err:
         print(err)
-
-    print()
-    SubClass().test_protected()
-    print()
