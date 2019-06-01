@@ -2,11 +2,12 @@
 
 """
     This is an example of truly 'pythonic' style applied.
+    The most common algorithm!
     Use of name mangling, though it isn't the only purpose of it.
     Why?
     Unpythonic is doing lots of type checking, or trying really hard to make
     something private/protected.
-    By the way we're all consenting adults here
+    By the way we're all consenting adults here...
 """
 
 
