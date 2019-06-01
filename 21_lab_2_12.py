@@ -68,7 +68,6 @@ class Super:
                 attr = object.__getattribute__(subclass, item)
                 # better through types MethodType
                 if callable(attr):
-                    # noinspection PyUnresolvedReferences
                     return attr.__get__(self.__self__, self.__this_class__)
                 return attr
                 # return self.decorator(object.__getattribute__(subclass, item))
