@@ -9,7 +9,6 @@ class SequenceIterator:
             raise
 
     def __iter__(self):
-        # self.__iterator = iter(self.__iterable)
         return self
 
     def __next__(self):
